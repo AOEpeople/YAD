@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 # TODO - Escape wget credentials parameter proberly
 
@@ -6,20 +6,18 @@ function usage {
     echo "Usage:"
     echo " $0 -r <packageUrl> -t <targetDir> [-u <downloadUsername>] [-p <downloadPassword>] [-a <awsCliProfile>] [-d]"
     echo " -r     Package url (http, S3 or local file)"
-    echo " -t     Target dir (root dir) - a subfolder releases is expected"
+    echo " -t     Target dir (root dir) - a subfolder containing the 'releases' directory"
     echo " -u     Download username"
     echo " -p     Download password"
     echo " -a     aws cli profile (defaults to 'default')"
     echo ""
-    echo "Optional you can set following Variables: INSTALLSCRIPT"
+    echo "Optional you can set following Variables: YAD_INSTALL_SCRIPT"
     exit $1
 }
 
-
-
-if [ -z "$INSTALLSCRIPT" ]; then
-    echo "Use default INSTALLSCRIPT"
-    INSTALLSCRIPT="install.sh"
+if [ -z "YAD_INSTALL_SCRIPT" ]; then
+    echo "Use default YAD_INSTALL_SCRIPT"
+    YAD_INSTALL_SCRIPT="setup/install.sh"
 fi
 
 
@@ -44,7 +42,7 @@ if [ ! -d "${RELEASES}" ] ; then echo "Releases dir ${RELEASES} not found"; exit
 TMPDIR=`mktemp -d`
 function cleanup {
     echo "Removing temp dir ${TMPDIR}"
-    rm -rf "${TMPDIR}"
+    #rm -rf "${TMPDIR}"
 }
 trap cleanup EXIT
 
@@ -62,52 +60,43 @@ elif [[ "${PACKAGEURL}" =~ ^s3:// ]] ; then
     aws --profile ${AWSCLIPROFILE} s3 cp "${PACKAGEURL}" "${TMPDIR}/package.tar.gz" || { echo "Error while downloading base package from S3" ; exit 1; }
 
 fi
+PACKAGE_BASENAME=`basename $PACKAGEURL`
+
+PACKAGE_NAME=${PACKAGE_BASENAME%.*.*}
 
 # Unpack the package
 mkdir "${TMPDIR}/package" || { echo "Error while creating temporary package folder" ; exit 1; }
 echo "Extracting base package"
 tar xzf "${TMPDIR}/package.tar.gz" -C "${TMPDIR}/package" || { echo "Error while extracting base package" ; exit 1; }
 
+if [ ! -f "${TMPDIR}/package/$PACKAGE_NAME/version.txt" ] ; then echo "Could not find ${TMPDIR}/package/$PACKAGE_NAME/version.txt";
+ exit 1; fi
 
-if [ ! -f "${TMPDIR}/package/build.txt" ] ; then echo "Could not find ${TMPDIR}/package/build.txt"; exit 1; fi
-
-BUILD_NUMBER=`cat ${TMPDIR}/package/build.txt`
+BUILD_NUMBER=`cat ${TMPDIR}/package/$PACKAGE_NAME/version.txt`
 if [ -z "${BUILD_NUMBER}" ] ; then echo "Error reading build number"; exit 1; fi
 
-RELEASENAME="build_${BUILD_NUMBER}"
-
 # check if current release already exist
-RELEASEFOLDER="${RELEASES}/${RELEASENAME}"
+RELEASEFOLDER="${RELEASES}/${BUILD_NUMBER}"
 if [ -d "${RELEASEFOLDER}" ] ; then echo "Release folder ${RELEASEFOLDER} already exists"; exit 1; fi
 
 # Move files to release folder
-mv "${TMPDIR}/package" "${RELEASEFOLDER}" || { echo "Error while moving package folder" ; exit 1; }
+mv "${TMPDIR}/package/$PACKAGE_NAME" "${RELEASEFOLDER}" || { echo "Error while moving package folder" ; exit 1; }
 
+echo
 
 # Install the package
-if [ ! -f "${RELEASEFOLDER}/${INSTALLSCRIPT}" ] ; then echo "Could not find installer ${RELEASEFOLDER}/${INSTALLSCRIPT}" ; exit 1; fi
-${RELEASEFOLDER}/${INSTALLSCRIPT} || { echo "Installing package failed"; exit 1; }
+if [ ! -f "${RELEASEFOLDER}/${YAD_INSTALL_SCRIPT}" ] ; then echo "Could not find installer ${RELEASEFOLDER}/${YAD_INSTALL_SCRIPT}" ; exit 1; fi
+${RELEASEFOLDER}/${YAD_INSTALL_SCRIPT} || { echo "Installing package failed"; exit 1; }
 
 echo
 echo "Updating release symlinks"
 echo "-------------------------"
 
-echo "Setting next symlink (${RELEASES}/next) to this release (${RELEASEFOLDER})"
-ln -sf "next" "${RELEASES}/next" || { echo "Error while symlinking the 'next' folder"; exit 1; }
+echo "Setting previous to previous"
+ln -sfn "`readlink ${RELEASES}/current`" "${RELEASES}/previous"
 
-# If you want to manually check before switching the other symlinks, this would be a good point to stop (maybe add another parameter to this script)
+echo "Settings current (${RELEASES}/current) to '${BUILD_NUMBER}'"
+ln -sfn "${BUILD_NUMBER}" "${RELEASES}/current" || { echo "Error while symlinking 'current' to '${BUILD_NUMBER}'" ;
+exit 1; }
 
-#if [ -n "${CURRENT_BUILD}" ] ; then
-#    echo "Setting previous (${RELEASES}/previous) to current (${CURRENT_BUILD})"
-#    ln -sfn "${CURRENT_BUILD}" "${RELEASES}/previous"
-#fi
-
-echo "Settings latest (${RELEASES}/latest) to release folder (${RELEASENAME})"
-ln -sfn "${RELEASENAME}" "${RELEASES}/latest" || { echo "Error while symlinking 'latest' to release folder" ; exit 1; }
-
-echo "Settings current (${RELEASES}/current) to 'latest'"
-ln -sfn "latest" "${RELEASES}/current" || { echo "Error while symlinking 'current' to 'latest'" ; exit 1; }
 echo "--> THIS PACKAGE IS LIVE NOW! <--"
-
-echo "Deleting next symlink (${RELEASES}/next)"
-unlink "${RELEASES}/next"
