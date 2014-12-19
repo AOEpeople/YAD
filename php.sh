@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# TODO - Make sharedfolders settings optional or use a environemnt variable?
 # TODO - Escape wget credentials parameter proberly
 
 function usage {
     echo "Usage:"
     echo " $0 -r <packageUrl> -t <targetDir> [-u <downloadUsername>] [-p <downloadPassword>] [-a <awsCliProfile>] [-d]"
     echo " -r     Package url (http, S3 or local file)"
-    echo " -t     Target dir (root dir) - a subfolder releases and shared is expected"
+    echo " -t     Target dir (root dir) - a subfolder releases is expected"
     echo " -u     Download username"
     echo " -p     Download password"
     echo " -a     aws cli profile (defaults to 'default')"
@@ -40,14 +39,6 @@ done
 # Check if releases folder exists
 RELEASES="${ENVROOTDIR}/releases"
 if [ ! -d "${RELEASES}" ] ; then echo "Releases dir ${RELEASES} not found"; exit 1; fi
-
-# Check if the shared folder exists
-SHAREDFOLDER="${ENVROOTDIR}/shared"
-SHAREDFOLDERS=( "var" "media" )
-if [ ! -d "${SHAREDFOLDER}" ] ; then echo "Shared folder ${SHAREDFOLDER} not found"; exit 1; fi
-for i in "${SHAREDFOLDERS[@]}" ; do
-    if [ ! -d "${SHAREDFOLDER}/$i" ] ; then echo "Shared folder ${SHAREDFOLDER}/$i not found"; exit 1; fi
-done
 
 # Create tmp dir and make sure it's going to be deleted in any case
 TMPDIR=`mktemp -d`
