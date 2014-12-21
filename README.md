@@ -1,9 +1,37 @@
 # YAD
 
-This repository belongs to `/etc/yad/deploy/`
+Light weight deployment scripts
+
+This repository is suggested to be located under `/etc/yad/deploy/`
+
+## Deploymentscript "php.sh"
 
 
-## Example:
+## Concepts:
+The deployment concept of YAD consists of the following steps and conventions:
+
+1.  Deployment Preparation:
+    For every application there exists a deploymentscript under /usr/local/bin following the naming convention
+    yad_<projectname>_<applicationname>_<environmentname>
+
+    This script itself is very light and the only thing it does is including the settings file for this application.
+    (a script under "/etc/yad/<projectname>/<applicationname>/<environmentname>", which normaly only contains some defined Variables (like DB_HOST ...), that the installation of this application expects.)
+
+    This script then triggers the standard yad deployment scripts.
+
+2.  Deployment:
+    The standard yad deploymentscripts are located under /etc/yad/deploy
+
+    The deploymentscript is just responsible for downloading the application package from a specified url, taking care of cleaning up old releases if required, and then triggers the installation script.
+    For more details read https://github.com/aoepeople/yad
+
+3.  Installation:
+    The installation is completely in the responsibility of the application.
+    A typical step in the installation is adjusting application settings like database settings.
+    We recommend using "settings injection": The installation process should expect the settings in environment variables! Exactly the ones included in step 1 :-)
+
+
+### Example
 project: starfleet
 application: magento
 environment: staging
@@ -11,11 +39,11 @@ environment: staging
 call:
 
     /usr/local/bin/yad_starfleet_magento_staging
-    |--> source /etc/yad/starfleet/magento/staging.sh (/etc/yad/starfleet/ is a git repo)
+    |--> source /etc/yad/starfleet/magento/staging.sh (File containing the settings for this environment.)
     |--> call /etc/yad/yad.sh
          |--> validate whatever
          |--> ensure /etc/yad/deploy/ is checked out
-         |--> call /etc/yad/deploy/php.sh
+         |--> call the specific deployment-script e.g. /etc/yad/deploy/php.sh
 
 /usr/local/bin/yad_starfleet_magento_staging content:
 
@@ -46,21 +74,4 @@ call:
 
     YAD_RELEASE_FOLDER="/var/www/${YAD_PROJECT}/${YAD_APPLICATION}/${ENVIRONMENT}/releases/"
 
-## responibilities
 
-/usr/local/bin/yad_starfleet_magento
-
-`-> source /etc/yad/starfleet/magento/staging.sh`
-
-`-> call /etc/yad/deploy/yad.sh`
-
-/etc/yad/deploy/yad.sh
-
-`-> validation`
-
-`-> call /etc/yad/deploy/php.sh`
-
-
-/usr/local/bin/yad_starfleet_magento <-- basiert auf generische yad.sh, kann lokale defaults haben
-
-/etc/yad/deploy <-- repository für deploy-scripte, e.g. php.sh, java.sh, etc...

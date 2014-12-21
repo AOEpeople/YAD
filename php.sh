@@ -1,12 +1,14 @@
 #!/bin/bash -ex
 
-# TODO - Escape wget credentials parameter proberly
+#include common functions
+MY_PATH=`dirname $(readlink -f "$0")`
+source "${MY_PATH}/_utils.sh"
 
 function usage {
     echo "Usage:"
-    echo " $0 -r <packageUrl> -t <targetDir> [-u <downloadUsername>] [-p <downloadPassword>] [-a <awsCliProfile>] [-d]"
+    echo " $0 -r <packageUrl> -t <releaseDir> [-u <downloadUsername>] [-p <downloadPassword>] [-a <awsCliProfile>] [-d]"
     echo " -r     Package url (http, S3 or local file)"
-    echo " -t     Target dir (root dir) - a subfolder containing the 'releases' directory"
+    echo " -t     Target release dir normaly a folder where the last path is 'releases' "
     echo " -u     Download username"
     echo " -p     Download password"
     echo " -a     aws cli profile (defaults to 'default')"
@@ -14,6 +16,7 @@ function usage {
     echo "Optional you can set following Variables: YAD_INSTALL_SCRIPT"
     exit $1
 }
+
 
 if [ -z "YAD_INSTALL_SCRIPT" ]; then
     echo "Use default YAD_INSTALL_SCRIPT"
@@ -26,8 +29,8 @@ EXTRA=0
 
 while getopts 'r:t:u:p:a:' OPTION ; do
 case "${OPTION}" in
-        r) PACKAGEURL="${OPTARG}";;
-        t) ENVROOTDIR="${OPTARG}";;
+        r) YAD_PACKAGE="${OPTARG}";;
+        t) YAD_RELEASE_FOLDER="${OPTARG}";;
         u) USERNAME="${OPTARG}";;
         p) PASSWORD="${OPTARG}";;
         a) AWSCLIPROFILE="${OPTARG}";;
@@ -35,8 +38,7 @@ case "${OPTION}" in
     esac
 done
 # Check if releases folder exists
-RELEASES="${ENVROOTDIR}/releases"
-if [ ! -d "${RELEASES}" ] ; then echo "Releases dir ${RELEASES} not found"; exit 1; fi
+if [ ! -d "${YAD_RELEASE_FOLDER}" ] ; then echo "Releases dir ${YAD_RELEASE_FOLDER} not found"; exit 1; fi
 
 # Create tmp dir and make sure it's going to be deleted in any case
 TMPDIR=`mktemp -d`
@@ -46,22 +48,10 @@ function cleanup {
 }
 trap cleanup EXIT
 
-if [ -f "${PACKAGEURL}" ] ; then
-    cp "${PACKAGEURL}" "${TMPDIR}/package.tar.gz" || { echo "Error while copying base package" ; exit 1; }
-elif [[ "${PACKAGEURL}" =~ ^https?:// ]] ; then
-    if [ ! -z "${USERNAME}" ] && [ ! -z "${PASSWORD}" ] ; then
-        CREDENTIALS="--user=${USERNAME} --password=${PASSWORD}"
-    fi
-    echo "Downloading package via http"
-    wget --no-check-certificate --auth-no-challenge ${CREDENTIALS} "${PACKAGEURL}" -O "${TMPDIR}/package.tar.gz" || { echo "Error while downloading base package from http" ; exit 1; }
+# Call download function
+download $YAD_PACKAGE $TMPDIR
 
-elif [[ "${PACKAGEURL}" =~ ^s3:// ]] ; then
-    echo "Downloading package via S3"
-    aws --profile ${AWSCLIPROFILE} s3 cp "${PACKAGEURL}" "${TMPDIR}/package.tar.gz" || { echo "Error while downloading base package from S3" ; exit 1; }
-
-fi
-PACKAGE_BASENAME=`basename $PACKAGEURL`
-
+PACKAGE_BASENAME=`basename $YAD_PACKAGE`
 PACKAGE_NAME=${PACKAGE_BASENAME%.*.*}
 
 # Unpack the package
@@ -69,34 +59,64 @@ mkdir "${TMPDIR}/package" || { echo "Error while creating temporary package fold
 echo "Extracting base package"
 tar xzf "${TMPDIR}/package.tar.gz" -C "${TMPDIR}/package" || { echo "Error while extracting base package" ; exit 1; }
 
-if [ ! -f "${TMPDIR}/package/$PACKAGE_NAME/version.txt" ] ; then echo "Could not find ${TMPDIR}/package/$PACKAGE_NAME/version.txt";
- exit 1; fi
+#Check if package contained subfolder
+UNPACKED_FOLDER="${TMPDIR}/package"
+if [ -d "${TMPDIR}/package/$PACKAGE_NAME" ] ; then
+    UNPACKED_FOLDER="${TMPDIR}/package/$PACKAGE_NAME"
+fi
 
-BUILD_NUMBER=`cat ${TMPDIR}/package/$PACKAGE_NAME/version.txt`
-if [ -z "${BUILD_NUMBER}" ] ; then echo "Error reading build number"; exit 1; fi
+# Get buildnumber
+if [ -f "${UNPACKED_FOLDER}/version.txt" ] ; then
+    RELEASENAME=`cat ${UNPACKED_FOLDER}/version.txt`
+elif [ -f "${UNPACKED_FOLDER}/build.txt" ] ; then
+    RELEASENAME=`cat ${UNPACKED_FOLDER}/build.txt`
+else
+    echo "Could not find ${UNPACKED_FOLDER}/$PACKAGE_NAME/version.txt or build.txt! Fallback to timestamp";
+    RELEASENAME=$(date +%s)
+    exit 1;
+fi
+
+if [ -z "${RELEASENAME}" ] ; then echo "Error detecting a RELEASENAME!"; exit 1; fi
 
 # check if current release already exist
-RELEASEFOLDER="${RELEASES}/${BUILD_NUMBER}"
-if [ -d "${RELEASEFOLDER}" ] ; then echo "Release folder ${RELEASEFOLDER} already exists"; exit 1; fi
+FINAL_RELEASEFOLDER="${YAD_RELEASE_FOLDER}/${RELEASENAME}"
+if [ -d "${FINAL_RELEASEFOLDER}" ] ; then echo "Release folder ${FINAL_RELEASEFOLDER} already exists"; exit 1; fi
 
-# Move files to release folder
-mv "${TMPDIR}/package/$PACKAGE_NAME" "${RELEASEFOLDER}" || { echo "Error while moving package folder" ; exit 1; }
-
-echo
+# Move unpacked folder to target path:
+mv "${UNPACKED_FOLDER}" "${FINAL_RELEASEFOLDER}" || { echo "Error while moving package ${UNPACKED_FOLDER} folder to ${FINAL_RELEASEFOLDER}" ; exit 1; }
 
 # Install the package
-if [ ! -f "${RELEASEFOLDER}/${YAD_INSTALL_SCRIPT}" ] ; then echo "Could not find installer ${RELEASEFOLDER}/${YAD_INSTALL_SCRIPT}" ; exit 1; fi
-${RELEASEFOLDER}/${YAD_INSTALL_SCRIPT} || { echo "Installing package failed"; exit 1; }
+if [ ! -f "${FINAL_RELEASEFOLDER}/${YAD_INSTALL_SCRIPT}" ] ; then echo "Could not find installer ${FINAL_RELEASEFOLDER}/${YAD_INSTALL_SCRIPT} - you may want to define another installer with the Variable YAD_INSTALL_SCRIPT" ; exit 1; fi
+${FINAL_RELEASEFOLDER}/${YAD_INSTALL_SCRIPT} || { echo "Installing package failed"; exit 1; }
 
 echo
 echo "Updating release symlinks"
 echo "-------------------------"
 
-echo "Setting previous to previous"
-ln -sfn "`readlink ${RELEASES}/current`" "${RELEASES}/previous"
+cd ${YAD_RELEASE_FOLDER}
 
-echo "Settings current (${RELEASES}/current) to '${BUILD_NUMBER}'"
-ln -sfn "${BUILD_NUMBER}" "${RELEASES}/current" || { echo "Error while symlinking 'current' to '${BUILD_NUMBER}'" ;
-exit 1; }
+echo "Setting next symlink (${YAD_RELEASE_FOLDER}/next) to this release (${RELEASENAME})"
+ln -sf "${RELEASENAME}" "next" || { echo "Error while symlinking the 'next' folder"; exit 1; }
 
+# If you want to manually check before switching the other symlinks, this would be a good point to stop (maybe add another parameter to this script)
+
+#if [ -n "${CURRENT_BUILD}" ] ; then
+#    echo "Setting previous (${RELEASES}/previous) to current (${CURRENT_BUILD})"
+#    ln -sfn "${CURRENT_BUILD}" "${RELEASES}/previous"
+#fi
+
+echo "Settings latest (${YAD_RELEASE_FOLDER}/latest) to release folder (${RELEASENAME})"
+ln -sfn "${RELEASENAME}" "latest" || { echo "Error while symlinking 'latest' to release folder" ; exit 1; }
+
+if [[ -h "${YAD_RELEASE_FOLDER}/current" ]] ; then
+    echo "Setting previous to previous"
+    ln -sfn "`readlink ${YAD_RELEASE_FOLDER}/current`" "previous"
+fi
+
+echo "Settings current (${YAD_RELEASE_FOLDER}/current) to 'latest'"
+ln -sfn "latest" "current" || { echo "Error while symlinking 'current' to 'latest'" ; exit 1; }
 echo "--> THIS PACKAGE IS LIVE NOW! <--"
+
+echo "Deleting next symlink (${YAD_RELEASE_FOLDER}/next)"
+unlink "${YAD_RELEASE_FOLDER}/next"
+

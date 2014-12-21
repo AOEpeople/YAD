@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash
 
 
 ####
@@ -6,7 +6,7 @@
 # @param package_url
 # @param targetDir
 #
-# Global Variables read: USERNAME, PASSWORD, AWSCLIPROFILE
+# Global Variables read: YAD_PACKAGE_USERNAME, YAD_PACKAGE_PASSWORD, AWSCLIPROFILE
 #
 ####
 function download  {
@@ -16,10 +16,10 @@ function download  {
     if [ -f "${package_url}" ] ; then
         cp "${package_url}" "${targetDir}/package.tar.gz" || { echo "Error while copying base package to ${targetDir}" ; exit 1; }
     elif [[ "${package_url}" =~ ^https?:// ]] ; then
-        if [ ! -z "${USERNAME}" ] && [ ! -z "${PASSWORD}" ] ; then
-            echo "Using username ${USERNAME} and given password to download"
+        if [ ! -z "${YAD_PACKAGE_USERNAME}" ] && [ ! -z "${YAD_PACKAGE_PASSWORD}" ] ; then
+            echo "Using username ${YAD_PACKAGE_USERNAME} and given password to download"
             # TODO - Escape wget credentials parameter proberly
-            CREDENTIALS="--user=${USERNAME} --password=${PASSWORD}"
+            CREDENTIALS="--user=${YAD_PACKAGE_USERNAME} --password=${YAD_PACKAGE_PASSWORD}"
         fi
         echo "Downloading package via http"
         wget --no-check-certificate --auth-no-challenge ${CREDENTIALS} "${package_url}" -O "${targetDir}/package.tar.gz" || { echo "Error while downloading base package from http" ; exit 1; }
