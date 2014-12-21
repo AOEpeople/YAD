@@ -31,8 +31,8 @@ while getopts 'r:t:u:p:a:' OPTION ; do
 case "${OPTION}" in
         r) YAD_PACKAGE="${OPTARG}";;
         t) YAD_RELEASE_FOLDER="${OPTARG}";;
-        u) USERNAME="${OPTARG}";;
-        p) PASSWORD="${OPTARG}";;
+        u) YAD_PACKAGE_USERNAME="${OPTARG}";;
+        p) YAD_PACKAGE_PASSWORD="${OPTARG}";;
         a) AWSCLIPROFILE="${OPTARG}";;
         \?) echo; usage 1;;
     esac

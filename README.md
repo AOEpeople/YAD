@@ -6,6 +6,18 @@ This repository is suggested to be located under `/etc/yad/deploy/`
 
 ## Deploymentscript "php.sh"
 
+Takes car of downloading a package with the application. Takes care of managing the releases and the symlinks.
+
+Uses the following Variables:
+
+-  YAD_RELEASE_FOLDER : Path to the folder where the package should be installed.
+    Inside of this folder some symlinks are maintained by the script: latest, current, previous and next
+
+-  YAD_PACKAGE : Url to the package
+
+-  YAD_PACKAGE_USERNAME, YAD_PACKAGE_PASSWORD : Optional the username required to download the package
+
+-  AWSCLIPROFILE : If the package points to S3, this is the profile that will be used
 
 ## Concepts:
 The deployment concept of YAD consists of the following steps and conventions:
