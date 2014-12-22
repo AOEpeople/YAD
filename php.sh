@@ -73,7 +73,6 @@ elif [ -f "${UNPACKED_FOLDER}/build.txt" ] ; then
 else
     echo "Could not find ${UNPACKED_FOLDER}/$PACKAGE_NAME/version.txt or build.txt! Fallback to timestamp";
     RELEASENAME=$(date +%s)
-    exit 1;
 fi
 
 if [ -z "${RELEASENAME}" ] ; then echo "Error detecting a RELEASENAME!"; exit 1; fi
