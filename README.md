@@ -52,38 +52,39 @@ call:
 
     /usr/local/bin/yad_starfleet_magento_staging
     |--> source /etc/yad/starfleet/magento/staging.sh (File containing the settings for this environment.)
-    |--> call /etc/yad/yad.sh
-         |--> validate whatever
-         |--> ensure /etc/yad/deploy/ is checked out
+    |--> call /etc/yad/deploy/yad.sh
+         |--> basic validation that YAD_* variables are defined
+         |--> ensure /etc/yad/deploy/__APP__.sh is available
          |--> call the specific deployment-script e.g. /etc/yad/deploy/php.sh
 
 /usr/local/bin/yad_starfleet_magento_staging content:
 
-    YAD_PROJECT="starfleet"
-    YAD_APPLICATION="magento"
-    YAD_ENVIRONMENT="staging"
+    #!/bin/bash
 
-    source "/etc/yad/${YAD_PROJECT}/${YAD_APPLICATION}/${YAD_ENVIRONMENT}.sh"
+    source "/etc/yad/starfleet/magento/staging.sh"
     /etc/yad/deploy/yad.sh
 
 
 /etc/yad/starfleet/magento/staging.sh content:
 
-    DB_HOST='localhost'
-    DB_USER='mg_stage'
-    DB_PASS='mg_pass'
-    DB_NAME='magento_staging'
-    
+    ## starfleet-magento
+
+    export DB_HOST='localhost'
+    export DB_USER='mg_stage'
+    export DB_PASS='mg_pass'
+    export DB_NAME='magento_staging'
+
+    #######################
+    # YAD specific settings
+
+    export YAD_DEPLOY=php.sh
+    export YAD_RELEASE_FOLDER=/var/www/starfleet/magento/staging/releases
+    export YAD_INSTALL_SCRIPT=setup/install.sh
+
     # package containing at least an install.sh install script
     # supports tgz and zip packages
-    YAD_PACKAGE="http://integration.host/job/xyz/artifacts/magento.tgz"
-
-    YAD_DEPLOY='php.sh'
-    # can be one of:
-    # something.sh (called in /etc/yad/deploy/something.sh)
-    # /usr/local/my/deploy.sh (to call something specific)
-    # https://buildserver/artifact/special_deploy.sh (download and execute?!)
-
-    YAD_RELEASE_FOLDER="/var/www/${YAD_PROJECT}/${YAD_APPLICATION}/${ENVIRONMENT}/releases/"
+    export YAD_PACKAGE=https://example.tdl/artifact/starfleet-magento.tar.gz
+    export YAD_PACKAGE_USERNAME=__USERNAME__
+    export YAD_PACKAGE_PASSWORD=__PASSWORD__
 
 
