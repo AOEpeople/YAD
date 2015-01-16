@@ -1,6 +1,8 @@
 #!/bin/bash -ex
 BASE_PATH=$( cd $(dirname $0) ; pwd -P )
 
+##############
+# Validation
 if [ -z "YAD_DEPLOY" ]; then
     echo "YAD_DEPLOY not set - set it to e.g. php.sh"
     exit 1
@@ -16,7 +18,7 @@ if [ -z "YAD_PACKAGE" ]; then
     exit 1
 fi
 
+##############
+# Dispatching
 echo $YAD_DEPLOY
 "$BASE_PATH/$YAD_DEPLOY" -t $YAD_RELEASE_FOLDER -r $YAD_PACKAGE
-
-# dispatching
