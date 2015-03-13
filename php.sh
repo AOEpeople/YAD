@@ -44,7 +44,7 @@ if [ ! -d "${YAD_RELEASE_FOLDER}" ] ; then echo "Releases dir ${YAD_RELEASE_FOLD
 TMPDIR=`mktemp -d`
 function cleanup {
     echo "Removing temp dir ${TMPDIR}"
-    #rm -rf "${TMPDIR}"
+    rm -rf "${TMPDIR}"
 }
 trap cleanup EXIT
 
