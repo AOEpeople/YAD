@@ -6,13 +6,13 @@ source "${MY_PATH}/_utils.sh"
 
 function usage {
     echo "Usage:"
-    echo " $0 -r <packageUrl> -t <releaseDir> [-u <downloadUsername>] [-p <downloadPassword>] [-a <awsCliProfile>] [-d]"
+    echo " $0 -r <packageUrl> -t <releaseDir> [-u <downloadUsername>] [-p <downloadPassword>] [-a <awsCliProfile>] [-x <postinstall file>]"
     echo " -r     Package url (http, S3 or local file)"
     echo " -t     Target release dir normaly a folder where the last path is 'releases' "
     echo " -u     Download username"
     echo " -p     Download password"
     echo " -a     aws cli profile (defaults to 'default')"
-    echo ""
+    echo " -x     eXtra postinstall script that can be used e.g. for fixing permissions"
     echo "Optional you can set following Variables: YAD_INSTALL_SCRIPT"
     exit $1
 }
@@ -26,6 +26,7 @@ fi
 
 AWSCLIPROFILE='default'
 EXTRA=0
+POSTINSTALL=''
 
 while getopts 'r:t:u:p:a:' OPTION ; do
 case "${OPTION}" in
@@ -34,6 +35,7 @@ case "${OPTION}" in
         u) YAD_PACKAGE_USERNAME="${OPTARG}";;
         p) YAD_PACKAGE_PASSWORD="${OPTARG}";;
         a) AWSCLIPROFILE="${OPTARG}";;
+        x) POSTINSTALL="${OPTARG}";;
         \?) echo; usage 1;;
     esac
 done
@@ -112,10 +114,13 @@ if [[ -h "${YAD_RELEASE_FOLDER}/current" ]] ; then
     ln -sfn "`readlink ${YAD_RELEASE_FOLDER}/current`" "previous"
 fi
 
+if [ -x "${POSTINSTALL}" ] ; then
+    ${POSTINSTALL} -r ${FINAL_RELEASEFOLDER} || { echo "ERROR!!!! The postinstall script failed and denied switching the current symlink! This is pretty serious..." }
+fi
+
 echo "Settings current (${YAD_RELEASE_FOLDER}/current) to 'latest'"
 ln -sfn "latest" "current" || { echo "Error while symlinking 'current' to 'latest'" ; exit 1; }
 echo "--> THIS PACKAGE IS LIVE NOW! <--"
 
 echo "Deleting next symlink (${YAD_RELEASE_FOLDER}/next)"
 unlink "${YAD_RELEASE_FOLDER}/next"
-
