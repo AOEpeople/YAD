@@ -113,7 +113,7 @@ if [[ -h "${YAD_RELEASE_FOLDER}/current" ]] ; then
 fi
 
 if [ -x "${YAD_POSTINSTALL_SCRIPT}" ] ; then
-    ${YAD_POSTINSTALL_SCRIPT} -r "${FINAL_RELEASEFOLDER}" || { echo "ERROR!!!! The postinstall script failed and denied switching the current symlink! This is pretty serious..." }
+    ${YAD_POSTINSTALL_SCRIPT} -r "${FINAL_RELEASEFOLDER}" || { echo "ERROR!!!! The postinstall script failed and denied switching the current symlink! This is pretty serious..."; exit 1; }
 fi
 
 echo "Settings current (${YAD_RELEASE_FOLDER}/current) to 'latest'"
