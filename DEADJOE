@@ -1,0 +1,26 @@
+
+*** These modified files were found in JOE when it aborted on Thu Mar 26 00:18:25 2015
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+.git/COMMIT_EDITMSG
+
+*** File '.git/COMMIT_EDITMSG'
+[FEATURE] Delete old releases q
+it's not an auit
+ß09q
+uuuuafter deployment
+
+In order to clean up the releases directory, the new option YAD_
+is now available to define how many releases should persist in the 
+release directorky.
+
+Resolves: https://github.com/AOEpeople/YAD/issues/1
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch keep
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	modified:   php.sh
+#

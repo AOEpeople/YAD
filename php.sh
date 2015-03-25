@@ -122,3 +122,7 @@ echo "--> THIS PACKAGE IS LIVE NOW! <--"
 
 echo "Deleting next symlink (${YAD_RELEASE_FOLDER}/next)"
 unlink "${YAD_RELEASE_FOLDER}/next"
+
+# clean up old releases
+YAD_KEEP=${YAD_RELEASES_TO_KEEP:-5}
+ls -1t "${YAD_RELEASE_FOLDER}" | grep -v "[current|latest|next|previous]" | tail -n +$(($YAD_KEEP+1)) | xargs rm -rf

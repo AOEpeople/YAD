@@ -42,6 +42,17 @@ The deployment concept of YAD consists of the following steps and conventions:
     A typical step in the installation is adjusting application settings like database settings.
     We recommend using "settings injection": The installation process should expect the settings in environment variables! Exactly the ones included in step 1 :-)
 
+###Available options
+Option | Type | Description | Default | Required
+--- | --- | --- | --- | ---
+`YAD_DEPLOY` | String | Script to use for the installation | php.sh | YES
+`YAD_RELEASE_FOLDER` | String | Release directory where your application should be installed |  | YES
+`YAD_INSTALL_SCRIPT` | String | Entry point for your package installation | setup/install.sh | NO
+`YAD_PACKAGE` | String | Used to download the deployment artefact (can be zip, tar.gz) |  | YES
+`YAD_PACKAGE_USERNAME` | String | User to login in order to download the artefact |  | NO
+`YAD_PACKAGE_PASSWORD` | String | Password to login in order to download the artefact | | NO
+`YAD_POSTINSTALL_SCRIPT` | String | Executable script that is triggered before the symlink switch is done |  | NO
+`YAD_RELEASES_TO_KEEP` | Integer | Keep only the number of releases (rest will be deleted) | 5 | NO
 
 ### Example
 project: starfleet
@@ -86,5 +97,4 @@ call:
     export YAD_PACKAGE=https://example.tdl/artifact/starfleet-magento.tar.gz
     export YAD_PACKAGE_USERNAME=__USERNAME__
     export YAD_PACKAGE_PASSWORD=__PASSWORD__
-
 
