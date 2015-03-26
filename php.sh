@@ -18,7 +18,7 @@ function usage {
 }
 
 
-if [ -z "YAD_INSTALL_SCRIPT" ]; then
+if [ -z "${YAD_INSTALL_SCRIPT}" ]; then
     echo "Use default YAD_INSTALL_SCRIPT"
     YAD_INSTALL_SCRIPT="setup/install.sh"
 fi
