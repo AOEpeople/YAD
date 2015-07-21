@@ -59,7 +59,7 @@ mkdir "${TMPDIR}/package" || { echo "Error while creating temporary package fold
 echo "Extracting base package"
 tar xzf "${TMPDIR}/package.tar.gz" -C "${TMPDIR}/package" || { echo "Error while extracting base package" ; exit 1; }
 
-#Check if package contained subfolder
+# Check if package contained subfolder "package"
 UNPACKED_FOLDER="${TMPDIR}/package"
 if [ -d "${TMPDIR}/package/$PACKAGE_NAME" ] ; then
     UNPACKED_FOLDER="${TMPDIR}/package/$PACKAGE_NAME"
@@ -71,8 +71,13 @@ if [ -f "${UNPACKED_FOLDER}/version.txt" ] ; then
 elif [ -f "${UNPACKED_FOLDER}/build.txt" ] ; then
     RELEASENAME=`cat ${UNPACKED_FOLDER}/build.txt`
 else
-    echo "Could not find ${UNPACKED_FOLDER}/$PACKAGE_NAME/version.txt or build.txt! Fallback to timestamp";
+    echo "Could not find ${UNPACKED_FOLDER}/version.txt or build.txt! Fallback to timestamp";
     RELEASENAME=$(date +%s)
+fi
+
+# Check if package contained subfolder with "/$RELEASENAME/"
+if [ -d "${TMPDIR}/package/$RELEASENAME" ] ; then
+    UNPACKED_FOLDER="${TMPDIR}/package/$RELEASENAME"
 fi
 
 if [ -z "${RELEASENAME}" ] ; then echo "Error detecting a RELEASENAME!"; exit 1; fi
