@@ -84,7 +84,23 @@ if [ -z "${RELEASENAME}" ] ; then echo "Error detecting a RELEASENAME!"; exit 1;
 
 # check if current release already exist
 FINAL_RELEASEFOLDER="${YAD_RELEASE_FOLDER}/${RELEASENAME}"
-if [ -d "${FINAL_RELEASEFOLDER}" ] ; then echo "Release folder ${FINAL_RELEASEFOLDER} already exists"; exit 1; fi
+if [ -d "${FINAL_RELEASEFOLDER}" ]
+then
+    if [ -z ${YAD_ALLOW_REINSTALL+x} ]
+    then
+        echo "Release folder ${FINAL_RELEASEFOLDER} already exists";
+        exit 1;
+    else
+        tmpReleaseFolder = $FINAL_RELEASEFOLDER
+        counter = 0;
+        while [ -d  tmpReleaseFolder ]
+        do
+            counter=$((counter + 1))
+            tmpReleaseFolder="${FINAL_RELEASEFOLDER}_${counter}"
+        done;
+        FINAL_RELEASEFOLDER=tmpReleaseFolder
+    fi
+fi
 
 # Move unpacked folder to target path:
 mv "${UNPACKED_FOLDER}" "${FINAL_RELEASEFOLDER}" || { echo "Error while moving package ${UNPACKED_FOLDER} folder to ${FINAL_RELEASEFOLDER}" ; exit 1; }
