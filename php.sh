@@ -97,9 +97,9 @@ then
         echo "Release folder ${FINAL_RELEASEFOLDER} already exists";
         exit 1;
     else
-        tmpReleaseFolder = $FINAL_RELEASEFOLDER
+        tmpReleaseFolder=$FINAL_RELEASEFOLDER
         counter = 0;
-        while [ -d  tmpReleaseFolder ]
+        while [ -d  $tmpReleaseFolder ]
         do
             counter=$((counter + 1))
             tmpReleaseFolder="${FINAL_RELEASEFOLDER}_${counter}"
