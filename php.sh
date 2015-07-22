@@ -44,7 +44,7 @@ if [ ! -d "${YAD_RELEASE_FOLDER}" ] ; then echo "Releases dir ${YAD_RELEASE_FOLD
 
 # Check if shared folder base exists if set
 if [ ! -z ${YAD_SHARED_FOLDER_BASE+x} ] && [ ! -d ${YAD_SHARED_FOLDER_BASE} ]; then echo "Shared dir ${YAD_SHARED_FOLDER_BASE} not found"; exit 1; fi
-if [ ! -z ${YAD_SHARED_FOLDER_BASE+x} ] &&  [ -z ${YAD_SHARED_FOLDERS+x} ]; then echo "If you want to symlink shared folders, than "; exit 1;
+if [ ! -z ${YAD_SHARED_FOLDER_BASE+x} ] &&  [ -z ${YAD_SHARED_FOLDERS+x} ]; then echo "If you want to symlink shared folders, than "; exit 1; fi
 
 # Create tmp dir and make sure it's going to be deleted in any case
 TMPDIR=`mktemp -d`
