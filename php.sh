@@ -141,13 +141,13 @@ ln -sf "${FINAL_RELEASEFOLDER}" "next" || { echo "Error while symlinking the 'ne
 #    ln -sfn "${CURRENT_BUILD}" "${RELEASES}/previous"
 #fi
 
-echo "Settings latest (${YAD_RELEASE_FOLDER}/latest) to release folder (${RELEASENAME})"
-ln -sfn "${FINAL_RELEASEFOLDER}" "latest" || { echo "Error while symlinking 'latest' to release folder" ; exit 1; }
-
 if [[ -h "${YAD_RELEASE_FOLDER}/current" ]] ; then
     echo "Setting previous to previous"
     ln -sfn "`readlink --canonicalize ${YAD_RELEASE_FOLDER}/current`" "previous"
 fi
+
+echo "Settings latest (${YAD_RELEASE_FOLDER}/latest) to release folder (${RELEASENAME})"
+ln -sfn "${FINAL_RELEASEFOLDER}" "latest" || { echo "Error while symlinking 'latest' to release folder" ; exit 1; }
 
 if [ -x "${YAD_POSTINSTALL_SCRIPT}" ] ; then
     echo "Executing \"${YAD_POSTINSTALL_SCRIPT}\" as postinstall script."
