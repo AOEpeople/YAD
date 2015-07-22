@@ -98,13 +98,13 @@ then
         exit 1;
     else
         tmpReleaseFolder=$FINAL_RELEASEFOLDER
-        counter = 0;
+        counter=0;
         while [ -d  $tmpReleaseFolder ]
         do
             counter=$((counter + 1))
             tmpReleaseFolder="${FINAL_RELEASEFOLDER}_${counter}"
         done;
-        FINAL_RELEASEFOLDER=tmpReleaseFolder
+        FINAL_RELEASEFOLDER=$tmpReleaseFolder
     fi
 fi
 
@@ -116,7 +116,6 @@ if [[ ! -z ${YAD_SHARED_FOLDER_BASE+x} ]] && [[ -d ${YAD_SHARED_FOLDER_BASE} ]]
 then
     for path in ${YAD_SHARED_FOLDERS};
     do
-        tmp_sourcePath =
         if [ -d "${FINAL_RELEASEFOLDER}/${path}" ]; then rm -rf ${FINAL_RELEASEFOLDER}/${path}; fi
         ln -s ${YAD_SHARED_FOLDER_BASE}/${path} ${FINAL_RELEASEFOLDER}/${path}
     done
