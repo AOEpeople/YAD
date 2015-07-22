@@ -132,7 +132,7 @@ echo "-------------------------"
 cd ${YAD_RELEASE_FOLDER}
 
 echo "Setting next symlink (${YAD_RELEASE_FOLDER}/next) to this release (${RELEASENAME})"
-ln -sf "${RELEASENAME}" "next" || { echo "Error while symlinking the 'next' folder"; exit 1; }
+ln -sf "${FINAL_RELEASEFOLDER}" "next" || { echo "Error while symlinking the 'next' folder"; exit 1; }
 
 # If you want to manually check before switching the other symlinks, this would be a good point to stop (maybe add another parameter to this script)
 
@@ -142,11 +142,11 @@ ln -sf "${RELEASENAME}" "next" || { echo "Error while symlinking the 'next' fold
 #fi
 
 echo "Settings latest (${YAD_RELEASE_FOLDER}/latest) to release folder (${RELEASENAME})"
-ln -sfn "${RELEASENAME}" "latest" || { echo "Error while symlinking 'latest' to release folder" ; exit 1; }
+ln -sfn "${FINAL_RELEASEFOLDER}" "latest" || { echo "Error while symlinking 'latest' to release folder" ; exit 1; }
 
 if [[ -h "${YAD_RELEASE_FOLDER}/current" ]] ; then
     echo "Setting previous to previous"
-    ln -sfn "`readlink ${YAD_RELEASE_FOLDER}/current`" "previous"
+    ln -sfn "`readlink --canonicalize ${YAD_RELEASE_FOLDER}/current`" "previous"
 fi
 
 if [ -x "${YAD_POSTINSTALL_SCRIPT}" ] ; then
