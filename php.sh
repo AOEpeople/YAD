@@ -12,8 +12,9 @@ function usage {
     echo " -u     Download username"
     echo " -p     Download password"
     echo " -a     aws cli profile (defaults to 'default')"
+    echo " -s     PATH to the folder where shared assets are stored, YAD_SHARED_FOLDERS need to be set, PATH/YAD_SHARED_FOLDERS[i] linked to target/current/YAD_SHARED_FOLDERS[i]"
     echo ""
-    echo "Optional you can set following Variables: YAD_INSTALL_SCRIPT, YAD_POSTINSTALL_SCRIPT"
+    echo "Optional you can set following Variables: YAD_INSTALL_SCRIPT, YAD_POSTINSTALL_SCRIPT, YAD_ALLOW_REINSTALL"
     exit $1
 }
 
@@ -33,12 +34,17 @@ case "${OPTION}" in
         t) YAD_RELEASE_FOLDER="${OPTARG}";;
         u) YAD_PACKAGE_USERNAME="${OPTARG}";;
         p) YAD_PACKAGE_PASSWORD="${OPTARG}";;
+        s) YAD_SHARED_FOLDER_BASE="${OPTARG}";;
         a) AWSCLIPROFILE="${OPTARG}";;
         \?) echo; usage 1;;
     esac
 done
 # Check if releases folder exists
 if [ ! -d "${YAD_RELEASE_FOLDER}" ] ; then echo "Releases dir ${YAD_RELEASE_FOLDER} not found"; exit 1; fi
+
+# Check if shared folder base exists if set
+if [ ! -z ${YAD_SHARED_FOLDER_BASE+x} ] && [ ! -d ${YAD_SHARED_FOLDER_BASE} ]; then echo "Shared dir ${YAD_SHARED_FOLDER_BASE} not found"; exit 1; fi
+if [ ! -z ${YAD_SHARED_FOLDER_BASE+x} ] &&  [ -z ${YAD_SHARED_FOLDERS+x} ]; then echo "If you want to symlink shared folders, than "; exit 1;
 
 # Create tmp dir and make sure it's going to be deleted in any case
 TMPDIR=`mktemp -d`
@@ -104,6 +110,17 @@ fi
 
 # Move unpacked folder to target path:
 mv "${UNPACKED_FOLDER}" "${FINAL_RELEASEFOLDER}" || { echo "Error while moving package ${UNPACKED_FOLDER} folder to ${FINAL_RELEASEFOLDER}" ; exit 1; }
+
+# Shared folders feature
+if [[ ! -z ${YAD_SHARED_FOLDER_BASE+x} ]] && [[ -d ${YAD_SHARED_FOLDER_BASE} ]]
+then
+    for path in ${YAD_SHARED_FOLDERS};
+    do
+        tmp_sourcePath =
+        if [ -d "${FINAL_RELEASEFOLDER}/${path}" ]; then rm -rf ${FINAL_RELEASEFOLDER}/${path}; fi
+        ln -s ${YAD_SHARED_FOLDER_BASE}/${path} ${FINAL_RELEASEFOLDER}/${path}
+    done
+fi
 
 # Install the package
 if [ ! -f "${FINAL_RELEASEFOLDER}/${YAD_INSTALL_SCRIPT}" ] ; then echo "Could not find installer ${FINAL_RELEASEFOLDER}/${YAD_INSTALL_SCRIPT} - you may want to define another installer with the Variable YAD_INSTALL_SCRIPT" ; exit 1; fi
