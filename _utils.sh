@@ -22,7 +22,7 @@ function download  {
             CREDENTIALS="--user=${YAD_PACKAGE_USERNAME} --password=${YAD_PACKAGE_PASSWORD}"
         fi
         echo "Downloading package via http"
-        wget --no-check-certificate --auth-no-challenge ${CREDENTIALS} "${package_url}" -O "${targetDir}/package.tar.gz" || { echo "Error while downloading base package from http" ; exit 1; }
+        wget --no-verbose --no-check-certificate --auth-no-challenge ${CREDENTIALS} "${package_url}" -O "${targetDir}/package.tar.gz" || { echo "Error while downloading base package from http" ; exit 1; }
 
     elif [[ "${package_url}" =~ ^s3:// ]] ; then
         echo "Downloading package via S3"
