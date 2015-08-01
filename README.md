@@ -6,7 +6,7 @@ This repository is suggested to be located under `/etc/yad/deploy/`
 
 ## Deploymentscript "php.sh"
 
-Takes car of downloading a package with the application. Takes care of managing the releases and the symlinks.
+Takes care of downloading a package with the application. Takes care of managing the releases and the symlinks.
 
 Uses the following Variables:
 
