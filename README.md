@@ -98,3 +98,8 @@ call:
     export YAD_PACKAGE_USERNAME=__USERNAME__
     export YAD_PACKAGE_PASSWORD=__PASSWORD__
 
+## Deploymentscript "gradle.sh"
+
+It expect a zip archive as artefact with a folder setup. In the setup folder should be a gradle build file.
+As default the gradlew wrapper will be called.
+Change YAD_INSTALL_SCRIPT=gradle if you have installed the wrapper on the target machine.

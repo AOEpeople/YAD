@@ -55,7 +55,7 @@ function cleanup {
 trap cleanup EXIT
 
 # Call download function
-download $YAD_PACKAGE $TMPDIR
+download $YAD_PACKAGE $TMPDIR 'package.tar.gz'
 
 PACKAGE_BASENAME=`basename $YAD_PACKAGE`
 PACKAGE_NAME=${PACKAGE_BASENAME%.*.*}
