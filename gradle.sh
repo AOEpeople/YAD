@@ -19,7 +19,7 @@ function usage {
 
 if [ -z "${YAD_INSTALL_SCRIPT}" ]; then
     echo "Use default YAD_INSTALL_SCRIPT"
-    YAD_INSTALL_SCRIPT="gradlew"
+    YAD_INSTALL_SCRIPT="./gradlew"
 fi
 
 
@@ -56,5 +56,5 @@ unzip -o "${TMPDIR}/${PACKAGE_BASENAME}" "setup/*" -d "${TMPDIR}" || { echo "Err
 cd "${TMPDIR}/setup/"
 
 # Install the package
-if [ ! -f "./${YAD_INSTALL_SCRIPT}" ] ; then echo "Could not find installer ${TMPDIR}/${YAD_INSTALL_SCRIPT} - you may want to define another installer with the Variable YAD_INSTALL_SCRIPT" ; exit 1; fi
+if [ ! -f "${YAD_INSTALL_SCRIPT}" ] ; then echo "Could not find installer ${TMPDIR}/${YAD_INSTALL_SCRIPT} - you may want to define another installer with the Variable YAD_INSTALL_SCRIPT" ; exit 1; fi
 ./${YAD_INSTALL_SCRIPT} || { echo "Installing package failed"; exit 1; }
