@@ -56,5 +56,5 @@ unzip -o "${TMPDIR}/${PACKAGE_BASENAME}" "setup/*" -d "${TMPDIR}" || { echo "Err
 cd "${TMPDIR}/setup/"
 
 # Install the package
-if [ ! -f "${YAD_INSTALL_SCRIPT}" ] ; then echo "Could not find installer ${TMPDIR}/${YAD_INSTALL_SCRIPT} - you may want to define another installer with the Variable YAD_INSTALL_SCRIPT" ; exit 1; fi
-./${YAD_INSTALL_SCRIPT} || { echo "Installing package failed"; exit 1; }
+command -v ${YAD_INSTALL_SCRIPT} > /dev/null 2>&1 || { echo >&2 "${YAD_INSTALL_SCRIPT} not available - you may want to define another installer with the Variable YAD_INSTALL_SCRIPT. Aborting."; exit 1; }
+${YAD_INSTALL_SCRIPT} || { echo "Installing package failed"; exit 1; }
