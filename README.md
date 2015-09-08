@@ -52,6 +52,7 @@ Option | Type | Description | Default | Required
 `YAD_PACKAGE_USERNAME` | String | User to login in order to download the artefact |  | NO
 `YAD_PACKAGE_PASSWORD` | String | Password to login in order to download the artefact | | NO
 `YAD_POSTINSTALL_SCRIPT` | String | Executable script that is triggered before the symlink switch is done |  | NO
+`YAD_PREINSTALL_SCRIPT` | String | Executable script that is triggered before the installation starts |  | NO
 `YAD_RELEASES_TO_KEEP` | Integer | Keep only the number of releases (rest will be deleted) | 5 | NO
 
 ### Example

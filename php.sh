@@ -108,6 +108,11 @@ then
     fi
 fi
 
+if [ -x "${YAD_PREINSTALL_SCRIPT}" ] ; then
+    echo "Executing \"${YAD_PREINSTALL_SCRIPT}\" as pre-install script."
+    ${YAD_PREINSTALL_SCRIPT} -r "${FINAL_RELEASEFOLDER}" || { echo "ERROR!!!! The pre-install script failed!"; exit 1; }
+fi
+
 # Move unpacked folder to target path:
 mv "${UNPACKED_FOLDER}" "${FINAL_RELEASEFOLDER}" || { echo "Error while moving package ${UNPACKED_FOLDER} folder to ${FINAL_RELEASEFOLDER}" ; exit 1; }
 
