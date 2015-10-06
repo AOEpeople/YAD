@@ -42,7 +42,7 @@ done
 # Check if releases folder exists
 if [ ! -d "${YAD_RELEASE_FOLDER}" ] ; then echo "Releases dir ${YAD_RELEASE_FOLDER} not found"; exit 1; fi
 
-if [ ! -f "${YAD_RELEASE_FOLDER}/INSTALLING.lock" ] ; then echo "Install already in progress"; exit1; fi
+if [ -f "${YAD_RELEASE_FOLDER}/INSTALLING.lock" ] ; then echo "Install already in progress"; exit 1; fi
 
 # Check if shared folder base exists if set
 if [ ! -z ${YAD_SHARED_FOLDER_BASE+x} ] && [ ! -d ${YAD_SHARED_FOLDER_BASE} ]; then echo "Shared dir ${YAD_SHARED_FOLDER_BASE} not found"; exit 1; fi
@@ -53,7 +53,7 @@ TMPDIR=`mktemp -d`
 function cleanup {
     echo "Removing temp dir ${TMPDIR}"
     rm -rf "${TMPDIR}"
-    if [ ! -f "${YAD_RELEASE_FOLDER}/INSTALLING.lock" ]; then rm ${YAD_RELEASE_FOLDER}/INSTALLING.lock; fi
+    if [ -f "${YAD_RELEASE_FOLDER}/INSTALLING.lock" ]; then rm ${YAD_RELEASE_FOLDER}/INSTALLING.lock; fi
 }
 trap cleanup EXIT
 
