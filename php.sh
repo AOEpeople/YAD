@@ -20,7 +20,7 @@ function usage {
 
 
 if [ -z "${YAD_INSTALL_SCRIPT}" ]; then
-    echo "Use default YAD_INSTALL_SCRIPT"
+    echo "Using default YAD_INSTALL_SCRIPT"
     YAD_INSTALL_SCRIPT="setup/install.sh"
 fi
 
