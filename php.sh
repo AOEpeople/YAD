@@ -25,7 +25,7 @@ if [ -z "${YAD_INSTALL_SCRIPT}" ]; then
 fi
 
 
-AWSCLIPROFILE='default'
+AWSCLIPROFILE=''
 EXTRA=0
 
 while getopts 'r:t:u:p:a:' OPTION ; do

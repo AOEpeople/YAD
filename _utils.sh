@@ -27,11 +27,12 @@ function download  {
 
     elif [[ "${package_url}" =~ ^s3:// ]] ; then
         echo "Downloading package via S3"
-        if [ -z "AWSCLIPROFILE" ]; then
-             echo "Missing Variable AWSCLIPROFILE"
-            exit 1
+
+        PROFILEPARAM=""
+        if [ ! -z "${AWSCLIPROFILE}" ] ; then
+            PROFILEPARAM="--profile ${AWSCLIPROFILE}"
         fi
-        aws --profile ${AWSCLIPROFILE} s3 cp "${package_url}" "${targetDir}/${filename}" || { echo "Error while downloading base package from S3" ; exit 1; }
+        aws ${PROFILEPARAM} s3 cp "${package_url}" "${targetDir}/${filename}" || { echo "Error while downloading base package from S3" ; exit 1; }
 
     fi
 }
