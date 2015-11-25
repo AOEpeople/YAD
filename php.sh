@@ -111,6 +111,8 @@ then
     fi
 fi
 
+export FINAL_RELEASEFOLDER
+
 # Add Lock-File
 touch ${YAD_RELEASE_FOLDER}/INSTALLING.lock
 
