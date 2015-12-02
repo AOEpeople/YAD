@@ -24,8 +24,10 @@ if [ -z "${YAD_INSTALL_SCRIPT}" ]; then
     YAD_INSTALL_SCRIPT="setup/install.sh"
 fi
 
+if [ -z "${AWSCLIPROFILE}" ] ; then
+    AWSCLIPROFILE=''
+fi
 
-AWSCLIPROFILE=''
 EXTRA=0
 
 while getopts 'r:t:u:p:a:' OPTION ; do
