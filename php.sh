@@ -126,6 +126,13 @@ fi
 # Move unpacked folder to target path:
 mv "${UNPACKED_FOLDER}" "${FINAL_RELEASEFOLDER}" || { echo "Error while moving package ${UNPACKED_FOLDER} folder to ${FINAL_RELEASEFOLDER}" ; exit 1; }
 
+if [ ! -z "${YAD_ADD_EXTRA_PACKAGE+x}" ]; then
+    EXTRAPACKAGE=${YAD_PACKAGE/.tar.gz/.extra.tar.gz}
+    download $EXTRAPACKAGE $TMPDIR 'package.extra.tar.gz'
+    echo "Extracting extra package"
+    tar xzf "${TMPDIR}/package.extra.tar.gz" -C "${FINAL_RELEASEFOLDER}" || { echo "Error while extracting extra package" ; exit 1; }
+fi
+
 # Shared folders feature
 if [[ ! -z ${YAD_SHARED_FOLDER_BASE+x} ]] && [[ -d ${YAD_SHARED_FOLDER_BASE} ]]
 then

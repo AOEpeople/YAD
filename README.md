@@ -54,6 +54,7 @@ Option | Type | Description | Default | Required
 `YAD_POSTINSTALL_SCRIPT` | String | Executable script that is triggered before the symlink switch is done |  | NO
 `YAD_PREINSTALL_SCRIPT` | String | Executable script that is triggered before the installation starts |  | NO
 `YAD_RELEASES_TO_KEEP` | Integer | Keep only the number of releases (rest will be deleted) | 5 | NO
+`YAD_ADD_EXTRA_PACKAGE` | String | If set the extra package (.extra.tar.gz) will downloaded and extracted on top of the original package |  | NO
 
 ### Example
 project: starfleet
