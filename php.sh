@@ -14,7 +14,7 @@ function usage {
     echo " -a     aws cli profile (defaults to 'default')"
     echo " -s     PATH to the folder where shared assets are stored, YAD_SHARED_FOLDERS need to be set, PATH/YAD_SHARED_FOLDERS[i] linked to target/current/YAD_SHARED_FOLDERS[i]"
     echo ""
-    echo "Optional you can set following Variables: YAD_INSTALL_SCRIPT, YAD_POSTINSTALL_SCRIPT, YAD_ALLOW_REINSTALL"
+    echo "Optional you can set following Variables: YAD_INSTALL_SCRIPT, YAD_POSTINSTALL_SCRIPT, YAD_POSTDEPLOYMENT_SCRIPT, YAD_ALLOW_REINSTALL"
     exit $1
 }
 
@@ -190,3 +190,7 @@ unlink "${YAD_RELEASE_FOLDER}/next"
 YAD_KEEP=${YAD_RELEASES_TO_KEEP:-5}
 ls -1t "${YAD_RELEASE_FOLDER}" | egrep -v "current|latest|next|previous|$(basename $FINAL_RELEASEFOLDER)" | sort -r | tail -n +$(($YAD_KEEP+1)) | xargs rm -rf
 
+if [ -x "${YAD_POSTDEPLOYMENT_SCRIPT}" ] ; then
+    echo "Executing \"${YAD_POSTDEPLOYMENT_SCRIPT}\" as post-deployment script."
+    ${YAD_POSTDEPLOYMENT_SCRIPT} -r "${FINAL_RELEASEFOLDER}" || { echo "ERROR!!!! The post-deployment script failed!"; exit 1; }
+fi
