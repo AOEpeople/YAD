@@ -126,7 +126,7 @@ fi
 # Move unpacked folder to target path:
 mv "${UNPACKED_FOLDER}" "${FINAL_RELEASEFOLDER}" || { echo "Error while moving package ${UNPACKED_FOLDER} folder to ${FINAL_RELEASEFOLDER}" ; exit 1; }
 
-if [ -z "${YAD_ADD_EXTRA_PACKAGE+x}" ]; then
+if [ "${YAD_ADD_EXTRA_PACKAGE+x}" ]; then
     EXTRAPACKAGE=${YAD_PACKAGE/.tar.gz/.extra.tar.gz}
     download $EXTRAPACKAGE $TMPDIR 'package.extra.tar.gz'
     echo "Extracting extra package"
