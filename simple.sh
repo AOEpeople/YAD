@@ -39,6 +39,11 @@ PACKAGE_NAME="${PACKAGE_NAME%.*}"
 
 # Create tmp dir 
 PACKAGE_TMPDIR=`mktemp -d -t yad.${PACKAGE_NAME}`
+function cleanup {
+    echo "Removing temp dir ${PACKAGE_TMPDIR}"
+    rm -rf "${PACKAGE_TMPDIR}"
+}
+trap cleanup EXIT
 
 download $YAD_PACKAGE $PACKAGE_TMPDIR $PACKAGE_BASENAME
 
