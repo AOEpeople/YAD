@@ -35,10 +35,10 @@ case "${OPTION}" in
 done
 
 PACKAGE_BASENAME=`basename "$YAD_PACKAGE"`
-PACKAGE_NAME="${PACKAGE_NAME%.*}"
+PACKAGE_NAME="${PACKAGE_BASENAME%.*}"
 
 # Create tmp dir 
-PACKAGE_TMPDIR=`mktemp -d -t yad.${PACKAGE_NAME}`
+PACKAGE_TMPDIR=`mktemp -d -t yad.${PACKAGE_NAME}.XXXXXXXXX`
 function cleanup {
     echo "Removing temp dir ${PACKAGE_TMPDIR}"
     rm -rf "${PACKAGE_TMPDIR}"
