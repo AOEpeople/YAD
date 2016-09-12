@@ -57,7 +57,7 @@ function cleanup {
     rm -rf "${TMPDIR}"
     if [ -f "${YAD_RELEASE_FOLDER}/INSTALLING.lock" ]; then rm ${YAD_RELEASE_FOLDER}/INSTALLING.lock; fi
 }
-trap cleanup EXIT
+trap cleanup
 
 # Call download function
 download $YAD_PACKAGE $TMPDIR 'package.tar.gz'
