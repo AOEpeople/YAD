@@ -163,9 +163,12 @@ ln -sf "${FINAL_RELEASEFOLDER}" "next" || { echo "Error while symlinking the 'ne
 #    ln -sfn "${CURRENT_BUILD}" "${RELEASES}/previous"
 #fi
 
+PREVIOUS_RELEASEFOLDER=""
+
 if [[ -h "${YAD_RELEASE_FOLDER}/current" ]] ; then
-    echo "Setting previous to previous"
-    ln -sfn "`readlink --canonicalize ${YAD_RELEASE_FOLDER}/current`" "previous"
+    echo "Setting previous to current"
+    PREVIOUS_RELEASEFOLDER=$(readlink --canonicalize ${YAD_RELEASE_FOLDER}/current)
+    ln -sfn "${PREVIOUS_RELEASEFOLDER}" "previous"
 fi
 
 echo "Settings latest (${YAD_RELEASE_FOLDER}/latest) to release folder (${RELEASENAME})"
@@ -188,7 +191,13 @@ unlink "${YAD_RELEASE_FOLDER}/next"
 
 # clean up old releases
 YAD_KEEP=${YAD_RELEASES_TO_KEEP:-5}
-ls -1t "${YAD_RELEASE_FOLDER}" | egrep -v "current|latest|next|previous|$(basename $FINAL_RELEASEFOLDER)" | sort -r | tail -n +$(($YAD_KEEP+1)) | xargs rm -rf
+KEEP_RELEASES="current|latest|next|previous|$(basename $FINAL_RELEASEFOLDER)"
+
+if [[ ! -z PREVIOUS_RELEASEFOLDER ]]; then
+    KEEP_RELEASES="${KEEP_RELEASES}|$(basename ${PREVIOUS_RELEASEFOLDER})"
+fi
+
+ls -1t "${YAD_RELEASE_FOLDER}" | egrep -v "${KEEP_RELEASES}" | sort -r | tail -n +$(($YAD_KEEP+1)) | xargs rm -rf
 
 if [ -x "${YAD_POSTDEPLOYMENT_SCRIPT}" ] ; then
     echo "Executing \"${YAD_POSTDEPLOYMENT_SCRIPT}\" as post-deployment script."
